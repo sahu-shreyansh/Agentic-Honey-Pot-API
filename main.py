@@ -8,6 +8,7 @@ This API implements an intelligent honeypot system that:
 - Tracks metrics for scam analysis
 - Provides comprehensive intelligence extraction
 """
+
 import os
 import re
 import time
@@ -39,7 +40,7 @@ if GEMINI_API_KEY:
     try:
         import google.generativeai as genai
         genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel("gemini-1.0-pro")
+        model = genai.GenerativeModel("models/gemini-pro")
         logger.info("Gemini AI successfully configured")
     except ImportError:
         logger.error("google-generativeai library not found. Install it with: pip install google-generativeai")
