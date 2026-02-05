@@ -38,9 +38,9 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     try:
         import google.generativeai as genai
-        genai.configure(api_key=GEMINI_API_KEY, transport="rest")
-        model = genai.GenerativeModel("models/gemini-1.5-flash")
-        logger.info("Gemini AI successfully configured with REST transport")
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel("gemini-1.0-pro")
+        logger.info("Gemini AI successfully configured")
     except ImportError:
         logger.error("google-generativeai library not found. Install it with: pip install google-generativeai")
 else:
