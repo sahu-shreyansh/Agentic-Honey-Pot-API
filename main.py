@@ -76,9 +76,9 @@ class Metadata(BaseModel):
     riskLevel: str = "medium"
 
 class RequestBody(BaseModel):
-    message: Message = Field(default_factory=Message)
-    conversationHistory: List[Message] = Field(default_factory=list)
-    metadata: Metadata = Field(default_factory=Metadata)
+    message: dict = Field(default_factory=dict)
+    conversationHistory: list = Field(default_factory=list)
+    metadata: dict = Field(default_factory=dict)
 
 class EngagementMetrics(BaseModel):
     """Metrics tracking scammer engagement."""
@@ -618,7 +618,7 @@ async def agentic_honeypot(body: RequestBody, x_api_key: str = Header(None)):
             raise HTTPException(status_code=401, detail="Invalid API Key")
 
         # --- 2. INPUT VALIDATION & SANITIZATION ---
-        last_message = (body.message.text or "").strip()
+        last_message = str(body.message.get("text", "")).strip()
         history = body.conversationHistory or []
         history_len = len(history)
         
@@ -626,7 +626,7 @@ async def agentic_honeypot(body: RequestBody, x_api_key: str = Header(None)):
             logger.warning("Empty message received")
             raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-        logger.info(f"Processing message from {body.message.sender} | History: {history_len}")
+        logger.info(f"Processing message from {body.message.get('sender', 'unknown')} | History: {history_len}")
 
         # --- 3. INTELLIGENCE EXTRACTION (ACCUMULATED) ---
         # Extract from current message
@@ -635,7 +635,7 @@ async def agentic_honeypot(body: RequestBody, x_api_key: str = Header(None)):
         # Accumulate from history
         historical_extracted = {}
         for msg in history:
-            old_extracted = extract_intelligence(msg.text or "")
+            old_extracted = extract_intelligence(str(msg.get("text", "")))
             for k, v in old_extracted.items():
                 if k not in historical_extracted:
                     historical_extracted[k] = []
@@ -660,7 +660,7 @@ async def agentic_honeypot(body: RequestBody, x_api_key: str = Header(None)):
         logger.info(f"Phase determined: {phase}")
         
         # --- 8. RESPONSE GENERATION ---
-        history_text = [m.text for m in history]
+        history_text = [str(m.get("text", "")) for m in history if isinstance(m, dict)]
         agent_reply = generate_agent_reply(phase, extracted_dict, instruction, history_len, history_text)
         
         # Final validation
@@ -687,7 +687,7 @@ async def agentic_honeypot(body: RequestBody, x_api_key: str = Header(None)):
                 totalMessagesExchanged=total_messages,
                 engagementDurationSeconds=est_duration,
                 averageResponseTime=est_duration / total_messages if total_messages > 0 else 0,
-                sessionId=body.metadata.channel if body.metadata else None
+                sessionId=body.metadata.get("channel") if isinstance(body.metadata, dict) else None
             ),
             extractedIntelligence=ExtractedIntelligence(
                 bankAccounts=extracted_dict.get("bankAccounts", []),
