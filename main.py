@@ -22,7 +22,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 
-# Removed deprecated import: import google.generativeai as genai
 
 # --- CONFIGURATION ---
 load_dotenv()
@@ -66,37 +65,20 @@ MIN_CONFIDENCE_THRESHOLD = 0.3
 
 # --- MODELS ---
 class Message(BaseModel):
-    """Represents a single message in the conversation."""
-    sender: Optional[str] = Field(default="unknown", description="Sender identifier")
-    text: Optional[str] = Field(default="", description="Message content")
-    timestamp: Optional[str] = Field(default_factory=lambda: datetime.now().isoformat(), description="Message timestamp")
-    
-    @field_validator('text', mode='before')
-    @classmethod
-    def sanitize_text(cls, v):
-        """Sanitize and normalize message text."""
-        if not v:
-            return ""
-        return str(v).strip()
+    sender: str = "unknown"
+    text: str = ""
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 class Metadata(BaseModel):
-    """Contextual metadata about the conversation."""
-    channel: Optional[str] = Field(default=None, description="Communication channel (sms, whatsapp, etc)")
-    language: Optional[str] = Field(default=None, description="Detected language")
-    locale: Optional[str] = Field(default=None, description="Geographic locale")
-    riskLevel: Optional[str] = Field(default="medium", description="Prior risk assessment")
+    channel: str = "unknown"
+    language: str = "en"
+    locale: str = "unknown"
+    riskLevel: str = "medium"
 
 class RequestBody(BaseModel):
-    """Main API request body."""
-    message: Message
-    conversationHistory: List[Message] = Field(default_factory=list, max_length=MAX_HISTORY_LENGTH)
-    metadata: Optional[Metadata] = Field(default_factory=Metadata)
-    
-    @field_validator('conversationHistory')
-    @classmethod
-    def limit_history(cls, v):
-        """Limit conversation history for performance."""
-        return v[-MAX_HISTORY_LENGTH:] if len(v) > MAX_HISTORY_LENGTH else v
+    message: Message = Field(default_factory=Message)
+    conversationHistory: List[Message] = Field(default_factory=list)
+    metadata: Metadata = Field(default_factory=Metadata)
 
 class EngagementMetrics(BaseModel):
     """Metrics tracking scammer engagement."""
