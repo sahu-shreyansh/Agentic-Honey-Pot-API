@@ -36,16 +36,14 @@ logger = logging.getLogger(__name__)
 
 # --- GEMINI SETUP ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 if GEMINI_API_KEY:
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel("models/gemini-pro")
-        logger.info("Gemini AI successfully configured")
-    except ImportError:
-        logger.error("google-generativeai library not found. Install it with: pip install google-generativeai")
+    from google import genai
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    logger.info("Gemini client initialized")
 else:
-    logger.warning("GEMINI_API_KEY not found. Falling back to rule-based responses.")
+    logger.warning("No GEMINI_API_KEY found")
+    client = None
 
 # --- CONFIGURATION ---
 # load_dotenv() called above to ensure env vars available for assignments below
@@ -452,7 +450,7 @@ def generate_agent_reply(phase: str, extracted: dict, instruction: Optional[str]
     """
     # 1. Try Gemini AI Generation
     # 1. Try Gemini AI Generation
-    if model:
+    if client:
         try:
             prompt = f"""
             You are playing the role of a naive, non-technical, slightly older potential victim in a scam conversation.
@@ -474,7 +472,10 @@ def generate_agent_reply(phase: str, extracted: dict, instruction: Optional[str]
             Respond with a single short message (under 20 words). Act natural, use slightly broken grammar or older person mannerisms.
             """
             
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model="gemini-1.5-flash",
+                contents=prompt
+            )
             
             if response.text:
                 text = response.text.replace('"', '').strip()
