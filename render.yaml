@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: agentic-honeypot-api
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    autoDeploy: true
+    envVars:
+      - key: HONEYPOT_API_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000
