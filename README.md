@@ -1,126 +1,187 @@
-# Agentic Honey-Pot API
 
-A secure, intelligent, and production-ready honeypot API designed to engage scammers, extract intelligence, and simulate human behavior to waste their time.
+# 🛡️ Agentic Honey-Pot API
+
+**Production-Grade Scam Detection & Engagement System**
+
+A robust, modular FastAPI backend designed to detect, analyze, and engage with scammers in a secure, controlled environment.
+
+## 🏗️ Architecture
+
+The project follows a clean **Service-Oriented Architecture (SOA)**:
+
+```
+agentic_honeypot/
+├── api/          # Route handlers (Controllers)
+├── services/     # core logic (Scam detection, Gemini AI, Regex)
+├── models/       # Pydantic data schemas
+├── core/         # Security & Logging
+├── utils/        # Enums & Helpers
+└── config.py     # Environment configuration
+```
+
+### 🌊 Flow Diagram
+
+```mermaid
+graph TD
+    A[Incoming Request] -->|Security| B(API Key Val)
+    B -->|Valid| C[Intelligence Extractor]
+    C -->|Regex| D[Extract UPI/Bank/Links]
+    
+    B -->|Text| E[Scam Detector]
+    E -->|Behavioral Analysis| F{Is Scam?}
+    
+    F -->|Logic| G[Phase Manager]
+    G -->|State| H[Determine Phase]
+    
+    H -->|Prompt| I[Gemini Service]
+    H -->|Fallback| J[Rule-Based Engine]
+    
+    I --> K[Response]
+    J --> K
+    
+    K --> L[Engagement Metrics]
+    L --> M[JSON Response]
+```
 
 ---
 
-## 🚀 Deployment (Render)
+## 🚀 Deployment
 
-This API is ready for immediate deployment on **Render**.
+### 1. Local Development
 
-### Option 1: Zero-Config Deployment (Recommended)
-1.  Push this code to a GitHub/GitLab repository.
-2.  Log in to [Render.com](https://render.com).
-3.  Click **New +** -> **Web Service**.
-4.  Connect your repository.
-5.  Render will automatically detect the configuration.
-    *   **Runtime**: Python 3
-    *   **Build Command**: `pip install -r requirements.txt`
-    *   **Start Command**: `python main.py`
-6.  Add your Environment Variables in the "Environment" tab:
-    *   `HONEYPOT_API_KEY`: (Generate a secure key)
-    *   `GEMINI_API_KEY`: (Your Google Gemini API Key)
+**Prerequisites:** Python 3.9+
 
-### Option 2: Docker Deployment
-If you prefer using Docker:
-1.  Select **Docker** as the runtime when creating the Web Service.
-2.  Render will automatically build using the `Dockerfile`.
-3.  Add the same environment variables as above.
+1.  **Navigate to directory:**
+    ```bash
+    cd agentic_honeypot
+    ```
 
-### Verification
-Once deployed, your API will be available at `https://your-service-name.onrender.com`.
-*   Swagger Docs: `https://your-service-name.onrender.com/docs`
-*   Health Check: `https://your-service-name.onrender.com/health`
+2.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
----
+3.  **Configure Environment:**
+    Create a `.env` file (or set system env vars):
+    ```env
+    HONEYPOT_API_KEY=your-secure-api-key
+    GEMINI_API_KEY=your-google-api-key  # Optional
+    LOG_LEVEL=INFO
+    ```
 
-## 🛠 Local Development
+4.  **Run Server:**
+    ```bash
+    uvicorn main:app --reload
+    ```
+    API will be available at `http://localhost:8080`.
 
-### 1. Setup
+### 2. Cloud Deployment (Render / Cloud Run)
+
+This project is stateless and production-ready.
+
+**Command:**
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Create .env file
-echo "HONEYPOT_API_KEY=demo-key" > .env
-echo "GEMINI_API_KEY=your-gemini-key" >> .env
+uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
-### 2. Run
+**Environment Variables:**
+Ensure `HONEYPOT_API_KEY` is set in your cloud provider's secret manager.
+
+---
+
+## 🔐 Security
+
+-   **API Authentication:** 
+    -   Protected via `X-API-Key` header.
+    -   Dependency Injection (`core/security.py`) ensures all endpoints are secured by default.
+-   **Input Sanitization:** 
+    -   Pydantic models strictly validate all incoming payloads.
+-   **Graceful Failure:** 
+    -   Global exception handlers prevent stack trace leaks.
+    -   Deterministic fallbacks ensure the bot *always* replies, even if AI fails.
+
+---
+
+## 🧠 Logic Explanation
+
+The system uses a **Phase-Based State Machine** to simulate a realistic victim:
+
+1.  **TRUST Phase:**
+    -   *Trigger:* First interaction.
+    -   *Action:* Agrees to everything. "Yes sir, I am listening."
+    
+2.  **CONFUSION Phase:**
+    -   *Trigger:* Default state or "technical" keywords.
+    -   *Action:* Mixes up terms (Browser vs Gallery). Frustrates the scammer.
+
+3.  **EXTRACTION Phase:**
+    -   *Trigger:* Scammer asks for OTP, UPI, or Links.
+    -   *Action:* "Fumbles" the critical step. "Sir, where do I find the OTP?"
+
+4.  **EXIT Phase:**
+    -   *Trigger:* High repetition, urgency, or long conversation.
+    -   *Action:* Stalls indefinitely. "Battery low", "Network slow".
+
+---
+
+## 🧪 API Usage & Testing
+
+**Endpoint:** `POST /agentic-honeypot`
+
+### 1. Basic Greeting (Trust Phase)
 ```bash
-python main.py
+curl -X POST "http://localhost:8080/agentic-honeypot" \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: demo-key" \
+     -d '{
+           "message": {
+             "text": "Hello, I am calling from your bank.",
+             "sender": "scammer_01"
+           }
+         }'
 ```
-Server will start at `http://0.0.0.0:8080`.
 
-
----
-
-## 🐳 Docker Support
-
-Build and run locally with Docker:
-
+### 2. High Urgency (Confusion Phase)
 ```bash
-# Build
-docker build -t agentic-honeypot .
-
-# Run
-docker run -p 8080:8080 -e HONEYPOT_API_KEY=demo-key agentic-honeypot
+curl -X POST "http://localhost:8080/agentic-honeypot" \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: demo-key" \
+     -d '{
+           "message": {
+             "text": "BLOCKING YOUR ACCOUNT IMMEDIATELY IF YOU DONT REPLY NOW!",
+             "sender": "scammer_01"
+           },
+           "conversationHistory": [
+              {"text": "Hello", "sender": "scammer_01"}
+           ]
+         }'
 ```
 
----
-
-## 🧩 Features
-
-### 1. Intelligent Scam Detection
-*   **Pattern Matching**: Detects UPIs, bank accounts, and phishing links.
-*   **Behavioral Analysis**: Identifies urgency, authority impersonation, and fear induction.
-*   **Multi-Factor Scoring**: Calculates a confidence score (0-1) for every message.
-
-### 2. Adaptive Phase Logic
-The bot transitions through phases to maximize engagement time:
-1.  **TRUST**: Feigns compliance to lower scammer defenses.
-2.  **CONFUSION**: Misunderstands instructions (e.g., confusing Apps with SMS).
-3.  **EXTRACTION**: "Accidentally" offers wrong info, prompting the scammer to reveal their details.
-4.  **EXIT**: Simulates technical failures (Battery low, Network error) to stall indefinitely.
-
-### 3. Generative AI Responses
-Uses **Google Gemini 1.5 Flash** to generate human-like, context-aware replies that are distinct every time. Falls back to a robust rule-based system if the AI is unavailable.
-
----
-
-## 📄 API Reference
-
-### POST `/agentic-honeypot`
-Analyzes a message and returns a honeypot response.
-
-**Headers**
-- `x-api-key`: Your security key.
-
-**Request Body**
-```json
-{
-  "message": {
-    "text": "Your account is blocked, verify now",
-    "sender": "unknown"
-  },
-  "conversationHistory": [
-    { "text": "Hello?", "sender": "scammer" }
-  ],
-  "metadata": {
-    "channel": "whatsapp"
-  }
-}
+### 3. Data Extraction Attempt (Extraction Phase)
+```bash
+curl -X POST "http://localhost:8080/agentic-honeypot" \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: demo-key" \
+     -d '{
+           "message": {
+             "text": "Send me the OTP code to verify your KYC",
+             "sender": "scammer_01"
+           },
+           "conversationHistory": [
+              {"text": "I am bank manager", "sender": "scammer_01"}
+           ]
+         }'
 ```
 
-**Response**
-```json
-{
-  "scamDetected": true,
-  "confidence": 0.95,
-  "phase": "EXTRACTION",
-  "agentReply": "Sir I am trying to open the link but it says 404 error.",
-  "extractedIntelligence": {
-    "phishingLinks": ["http://fake-bank.com"]
-  }
-}
+### 4. Intelligence Extraction Test
+```bash
+curl -X POST "http://localhost:8080/agentic-honeypot" \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: demo-key" \
+     -d '{
+           "message": {
+             "text": "Send money to payments@upi and click http://phishing.com",
+             "sender": "scammer_01"
+           }
+         }'
 ```
