@@ -51,10 +51,21 @@ graph TD
 
 **Prerequisites:** Python 3.9+
 
-1.  **Navigate to directory:**
+1.  **Setup and Activate Virtual Environment:**
+    * **Create the environment:**
     ```bash
-    cd agentic_honeypot
+    python -m venv venv
     ```
+
+    * **Activate the environment:**
+        * **Windows:**
+            ```bash
+            .\venv\Scripts\activate
+            ```
+        * **macOS/Linux:**
+            ```bash
+            source venv/bin/activate
+            ```
 
 2.  **Install dependencies:**
     ```bash
