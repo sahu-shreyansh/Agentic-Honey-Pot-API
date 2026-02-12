@@ -1,9 +1,88 @@
 
 # 🛡️ Agentic Honey-Pot API
 
-**Production-Grade Scam Detection & Engagement System**
+### AI-Powered Scam Engagement & Intelligence Extraction System
 
-A robust, modular FastAPI backend designed to detect, analyze, and engage with scammers in a secure, controlled environment.
+An **Agentic Honeypot API** that detects scam messages, simulates human-like responses, keeps scammers engaged, and extracts actionable intelligence such as **UPI IDs, phishing links, behavioral patterns, and scam phases** — all exposed through a secure REST API.
+
+Built as part of a cybersecurity + GenAI challenge to demonstrate **agentic AI behavior in real-world fraud scenarios**.
+
+---
+
+## 🌐 Live Deployment (Public API)
+
+The Agentic Honey-Pot API is deployed on Render and publicly accessible:
+
+👉 **Base URL:**  
+https://agentic-honey-pot-api-poy1.onrender.com
+
+👉 **Swagger Docs:**  
+https://agentic-honey-pot-api-poy1.onrender.com/docs
+
+👉 **Main Endpoint:**  
+POST https://agentic-honey-pot-api-poy1.onrender.com/agentic-honeypot
+
+Authentication required via:
+
+Header:
+X-API-Key: <your_api_key>
+
+---
+
+## 🚀 What This Does
+
+Instead of merely blocking scammers, this system:
+
+✅ Detects scam intent  
+✅ Classifies scam phase (CONFUSION → TRUST → EXTRACTION → EXIT)  
+✅ Generates human-like replies to prolong engagement  
+✅ Extracts intelligence (UPI IDs, phishing URLs, etc.)  
+✅ Flags behavioral signals (urgency, fear, impersonation)  
+✅ Returns structured JSON for downstream security systems  
+
+Think of it as an **autonomous scam interaction agent**.
+
+---
+
+## 🧠 Core Capabilities
+
+### 🔍 Scam Detection
+- Urgency detection  
+- Authority impersonation  
+- OTP / UPI extraction attempts  
+- Phishing link identification  
+
+### 🤖 Agentic Reply Engine
+Produces realistic replies like:
+- “Which app should I use sir?”
+- “Where do I enter this?”
+- “Is it safe to share OTP?”
+
+Designed to **slow attackers down** while gathering evidence.
+
+### 📊 Intelligence Extraction
+
+Returns:
+
+- `upiIds`
+- `phishingLinks`
+- `behavioralSignals`
+- `instructionPattern`
+- `confidence score`
+- `scam phase`
+
+---
+
+## 📦 Tech Stack
+
+- Python 3.10+
+- FastAPI
+- Gemini API
+- Regex + Heuristic Pattern Extraction
+- Render / Cloud Run (deployment)
+- Swagger / OpenAPI
+
+---
 
 ## 🏗️ Architecture
 
@@ -196,3 +275,14 @@ curl -X POST "http://localhost:8080/agentic-honeypot" \
            }
          }'
 ```
+
+---
+
+## 🙋‍♂️ Author
+
+**Shreyansh Sahu**
+AI / Data Engineer
+Focused on Agentic AI, GenAI Systems & Applied Security
+📧 [sahushreyansh692@gmail.com](mailto:sahushreyansh692@gmail.com)
+
+---
